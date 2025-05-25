@@ -1,13 +1,11 @@
 import os
-import datetime
+from datetime import datetime
 
 from pathlib import Path
 
 
 def get_time_stamp():
-    dt_str = str(datetime.datetime.now())
-    ret = dt_str.split()[0] + '-' + dt_str.split()[1].split('.')[0]
-    return ret
+    return datetime.now().strftime("%Y-%m-%d-%H.%M.%S")
 
 
 def create_latest_symlink(target: str):
