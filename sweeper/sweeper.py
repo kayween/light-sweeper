@@ -5,7 +5,7 @@ import yaml
 from typing import List, Any
 from itertools import product
 
-from utils import get_time_stamp, create_latest_symlink
+from .utils import get_time_stamp, create_latest_symlink
 
 
 class Run:
@@ -102,6 +102,7 @@ class ConfigFileParser:
 class ScriptGenerator:
     def __init__(
         self,
+        root: str,
         config_path: str,
         prologue: str = "",
         epilogue: str = "",
@@ -109,12 +110,13 @@ class ScriptGenerator:
     ):
         """
         Args:
+            root: The root folder to dump everything.
             config_path: The path to the configuration file.
             prologue: The prologue to add to each script.
             epilogue: The epilogue to add to each script.
             num_scripts: The number of scripts to generate. If <= 0, it will generate one script for each run.
         """
-        # Do parsing first---the program terminates immediately if parsing fails
+        self.root = root
         self.parser = ConfigFileParser(config_path)
         self.prologue = prologue
         self.epilogue = epilogue
@@ -125,11 +127,7 @@ class ScriptGenerator:
     @property
     def root_folder(self):
         """The root folder to dump everything."""
-        if self.parser.root is not None:
-            return os.path.join(self.parser.root, self.time_stamp)
-        else:
-            current_folder = os.path.dirname(os.path.realpath(__file__))
-            return os.path.join(current_folder, "experiments", self.time_stamp)
+        return os.path.join(self.root, self.time_stamp)
 
     @property
     def scripts_folder(self):
