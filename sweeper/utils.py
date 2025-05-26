@@ -13,7 +13,8 @@ def create_latest_symlink(target: str):
     Args:
         target: The target foler to link.
     """
-    parent = os.path.join(target, os.pardir)
+    parent = os.path.dirname(target)
+    base = os.path.basename(target)
 
     symlink = Path(os.path.join(parent, "latest"))
 
@@ -21,4 +22,4 @@ def create_latest_symlink(target: str):
         assert symlink.is_symlink()
         symlink.unlink()
 
-    symlink.symlink_to(os.path.join(parent, target))
+    symlink.symlink_to(os.path.join(base))
