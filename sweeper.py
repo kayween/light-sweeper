@@ -77,14 +77,6 @@ class ConfigFileParser:
         return self.config['root'] if "root" in self.config else None
 
     @property
-    def prologue(self):
-        return self.config['prologue']
-
-    @property
-    def epilogue(self):
-        return self.config['epilogue']
-
-    @property
     def lst_args_dicts(self):
         """
         Construct the list of argument dictionaries by cartesian product.
@@ -104,14 +96,30 @@ class ConfigFileParser:
                 cartesian_product = product(*[dfs(value, prefix + "." + key if prefix != "" else key) for key, value in node.items()])
                 return [{key: value for d in l for key, value in d.items()} for l in cartesian_product]
 
-        return dfs(self.config['arguments'], "")
+        return dfs(self.config, "")
 
 
 class ScriptGenerator:
-    def __init__(self, config_path: str, num_scripts: int = -1):
+    def __init__(
+        self,
+        config_path: str,
+        prologue: str = "",
+        epilogue: str = "",
+        num_scripts: int = 0,
+    ):
+        """
+        Args:
+            config_path: The path to the configuration file.
+            prologue: The prologue to add to each script.
+            epilogue: The epilogue to add to each script.
+            num_scripts: The number of scripts to generate. If <= 0, it will generate one script for each run.
+        """
         # Do parsing first---the program terminates immediately if parsing fails
         self.parser = ConfigFileParser(config_path)
+        self.prologue = prologue
+        self.epilogue = epilogue
         self.num_scripts = num_scripts
+
         self.time_stamp = get_time_stamp()
 
     @property
@@ -170,8 +178,8 @@ class ScriptGenerator:
 
         return [
             Script(
-                self.parser.prologue,
-                self.parser.epilogue,
+                self.prologue,
+                self.epilogue,
                 [run for j, run in enumerate(lst_runs) if j % num_scripts == i],
             ) for i in range(num_scripts)
         ]
