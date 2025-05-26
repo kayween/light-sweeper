@@ -16,7 +16,7 @@ class Run:
         self,
         cmd: str,
         output_path: str | None = None,
-        key: Any | None = None,
+        key: Any = None,
     ):
         """
         Args:
@@ -26,7 +26,7 @@ class Run:
         """
         self.cmd = cmd
         self.output_path = output_path
-        self.key = key
+        self.key = key if key is not None else cmd
 
 
 class Script:
