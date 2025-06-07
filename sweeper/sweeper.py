@@ -73,6 +73,14 @@ class ConfigFileParser:
             yaml.dump(self.config, f, default_flow_style=False)
 
     @property
+    def prologue(self):
+        return self.config['prologue'] if "prologue" in self.config else ""
+
+    @property
+    def epilogue(self):
+        return self.config['epilogue'] if "epilogue" in self.config else ""
+
+    @property
     def root(self):
         return self.config['root'] if "root" in self.config else None
 
@@ -104,8 +112,6 @@ class ScriptGenerator:
         self,
         root: str,
         config_path: str,
-        prologue: str = "",
-        epilogue: str = "",
         num_scripts: int = 0,
     ):
         """
@@ -118,8 +124,6 @@ class ScriptGenerator:
         """
         self.root = root
         self.parser = ConfigFileParser(config_path)
-        self.prologue = prologue
-        self.epilogue = epilogue
         self.num_scripts = num_scripts
 
         self.time_stamp = get_time_stamp()
