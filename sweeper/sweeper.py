@@ -104,7 +104,7 @@ class ConfigFileParser:
                 cartesian_product = product(*[dfs(value, prefix + "." + key if prefix != "" else key) for key, value in node.items()])
                 return [{key: value for d in l for key, value in d.items()} for l in cartesian_product]
 
-        return dfs(self.config, "")
+        return dfs(self.config['arguments'], "")
 
 
 class ScriptGenerator:
