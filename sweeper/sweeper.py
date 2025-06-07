@@ -110,19 +110,14 @@ class ConfigFileParser:
 class ScriptGenerator:
     def __init__(
         self,
-        root: str,
         config_path: str,
         num_scripts: int = 0,
     ):
         """
         Args:
-            root: The root folder to dump everything.
             config_path: The path to the configuration file.
-            prologue: The prologue to add to each script.
-            epilogue: The epilogue to add to each script.
             num_scripts: The number of scripts to generate. If <= 0, it will generate one script for each run.
         """
-        self.root = root
         self.parser = ConfigFileParser(config_path)
         self.num_scripts = num_scripts
 
@@ -131,7 +126,7 @@ class ScriptGenerator:
     @property
     def root_folder(self):
         """The root folder to dump everything."""
-        return os.path.join(self.root, self.time_stamp)
+        return os.path.join(self.parser.root, self.time_stamp)
 
     @property
     def scripts_folder(self):
