@@ -175,8 +175,8 @@ class ScriptGenerator:
 
         return [
             Script(
-                self.prologue,
-                self.epilogue,
+                self.parser.prologue,
+                self.parser.epilogue,
                 [run for j, run in enumerate(lst_runs) if j % num_scripts == i],
             ) for i in range(num_scripts)
         ]
