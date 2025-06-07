@@ -149,7 +149,14 @@ class ScriptGenerator:
 
         os.mkdir(self.scripts_folder)
         for i, script in enumerate(lst_scripts):
-            script.write(os.path.join(self.scripts_folder,  "{:d}.sh".format(i)))
+            script.write(
+                os.path.join(
+                    self.scripts_folder,
+                    "{{:0{:d}d}}.sh".format(
+                        len(str(len(lst_scripts) - 1))
+                    ).format(i),
+                )
+            )
 
         os.mkdir(self.outputs_folder)
         for run in lst_runs:
