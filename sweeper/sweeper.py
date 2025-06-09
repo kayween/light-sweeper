@@ -58,9 +58,16 @@ class Script:
 
 
 class ConfigFileParser:
-    def __init__(self, config_path: str):
+    def __init__(self, config_path: str, strip: bool = True):
+        """
+        Args:
+            config_path: The path to the configuration file.
+            strip: Whether to strip the intermediate keys in the configuration.
+        """
         with open(config_path, 'r') as fp:
             self.config = yaml.safe_load(fp)
+
+        self.strip = strip
 
     def dump(self, path: str):
         """
@@ -95,7 +102,9 @@ class ConfigFileParser:
                 A list of dictionaries.
             """
             if isinstance(node, int) or isinstance(node, float) or isinstance(node, str):
-                return [{prefix: node}]
+                return [
+                    {prefix.split(".")[-1] if self.strip else prefix: node}
+                ]
 
             elif isinstance(node, list):
                 return [entry for child in node for entry in dfs(child, prefix)]
