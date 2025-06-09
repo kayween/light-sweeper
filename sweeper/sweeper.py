@@ -167,6 +167,8 @@ class ScriptGenerator:
         if make_symlink:
             create_latest_symlink(self.root_folder)
 
+        print(f"Generated {len(lst_scripts)} scripts and {len(lst_runs)} runs.")
+
     def make_lst_runs(self, lst_args_dicts: List[dict]) -> List[Run]:
         """
         Args:
