@@ -1,17 +1,18 @@
 import os
+from itertools import product
+
+from typing import Any, List
 
 import yaml
 
-from typing import List, Any
-from itertools import product
-
-from .utils import get_time_stamp, create_latest_symlink
+from .utils import create_latest_symlink, get_time_stamp
 
 
 class Run:
     """
     A single run of experiment.
     """
+
     def __init__(
         self,
         cmd: str,
@@ -33,6 +34,7 @@ class Script:
     """
     A script to run a list of runs.
     """
+
     def __init__(self, prologue: str, epilogue: str, lst_runs: List[Run]):
         self.prologue = prologue
         self.epilogue = epilogue
@@ -40,16 +42,14 @@ class Script:
 
     def to_str(self):
         return (
-            self.prologue +
-            "\n\n" +
-            "\n\n".join(
-                [
-                    "echo {cmd}\n{cmd}".format(cmd=run.cmd) for run in self.lst_runs
-                ]
-            ) +
-            "\n\n" +
-            self.epilogue +
-            "\n"
+            self.prologue
+            + "\n\n"
+            + "\n\n".join(
+                ["echo {cmd}\n{cmd}".format(cmd=run.cmd) for run in self.lst_runs]
+            )
+            + "\n\n"
+            + self.epilogue
+            + "\n"
         )
 
     def write(self, path):
@@ -64,7 +64,7 @@ class ConfigFileParser:
             config_path: The path to the configuration file.
             strip: Whether to strip the intermediate keys in the configuration.
         """
-        with open(config_path, 'r') as fp:
+        with open(config_path, "r") as fp:
             self.config = yaml.safe_load(fp)
 
         self.strip = strip
@@ -76,44 +76,55 @@ class ConfigFileParser:
         Args:
             path: The path to dump configuration.
         """
-        with open(path, 'w') as f:
+        with open(path, "w") as f:
             yaml.dump(self.config, f, default_flow_style=False)
 
     @property
     def prologue(self):
-        return self.config['prologue'] if "prologue" in self.config else ""
+        return self.config["prologue"] if "prologue" in self.config else ""
 
     @property
     def epilogue(self):
-        return self.config['epilogue'] if "epilogue" in self.config else ""
+        return self.config["epilogue"] if "epilogue" in self.config else ""
 
     @property
     def root(self):
-        return self.config['root'] if "root" in self.config else None
+        return self.config["root"] if "root" in self.config else None
 
     @property
     def lst_args_dicts(self):
         """
         Construct the list of argument dictionaries by cartesian product.
         """
+
         def dfs(node, prefix=""):
             """
             Returns:
                 A list of dictionaries.
             """
-            if isinstance(node, int) or isinstance(node, float) or isinstance(node, str):
-                return [
-                    {prefix.split(".")[-1] if self.strip else prefix: node}
-                ]
+            if (
+                isinstance(node, int)
+                or isinstance(node, float)
+                or isinstance(node, str)
+            ):
+                return [{prefix.split(".")[-1] if self.strip else prefix: node}]
 
             elif isinstance(node, list):
                 return [entry for child in node for entry in dfs(child, prefix)]
 
             elif isinstance(node, dict):
-                cartesian_product = product(*[dfs(value, prefix + "." + key if prefix != "" else key) for key, value in node.items()])
-                return [{key: value for d in l for key, value in d.items()} for l in cartesian_product]
+                cartesian_product = product(
+                    *[
+                        dfs(value, prefix + "." + key if prefix != "" else key)
+                        for key, value in node.items()
+                    ]
+                )
+                return [
+                    {key: value for d in l for key, value in d.items()}
+                    for l in cartesian_product
+                ]
 
-        return dfs(self.config['arguments'], "")
+        return dfs(self.config["arguments"], "")
 
 
 class ScriptGenerator:
@@ -161,9 +172,7 @@ class ScriptGenerator:
             script.write(
                 os.path.join(
                     self.scripts_folder,
-                    "{{:0{:d}d}}.sh".format(
-                        len(str(len(lst_scripts) - 1))
-                    ).format(i),
+                    "{{:0{:d}d}}.sh".format(len(str(len(lst_scripts) - 1))).format(i),
                 )
             )
 
@@ -176,7 +185,9 @@ class ScriptGenerator:
         if make_symlink:
             create_latest_symlink(self.root_folder)
 
-        print(f"Generated {len(lst_scripts)} script(s) and {len(lst_runs)} run(s) at {self.root_folder}")
+        print(
+            f"Generated {len(lst_scripts)} script(s) and {len(lst_runs)} run(s) at {self.root_folder}"
+        )
 
     def make_lst_runs(self, lst_args_dicts: List[dict]) -> List[Run]:
         """
@@ -196,5 +207,6 @@ class ScriptGenerator:
                 self.parser.prologue,
                 self.parser.epilogue,
                 [run for j, run in enumerate(lst_runs) if j % num_scripts == i],
-            ) for i in range(num_scripts)
+            )
+            for i in range(num_scripts)
         ]
